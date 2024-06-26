@@ -2,8 +2,8 @@
 import cv2
 import numpy as np
 
-from crossing_line.config import DrawingConfig, RelativeDrawingConfig
-from crossing_line.draw import draw_line
+from registration_line.config import DrawingConfig, RelativeDrawingConfig
+from registration_line.draw import draw_line
 
 if __name__ == '__main__':
     start_point = (150, 550)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         baseline_conf, right_line_conf, left_line_conf
     )
 
-    expected_image = cv2.imread("entry_exit_line.png", cv2.IMREAD_UNCHANGED)
+    expected_image = cv2.imread("registration_line.png", cv2.IMREAD_UNCHANGED)
 
     assert np.array_equal(image, expected_image)
-    assert coordinates == ((140, 8), (569, 599))
+    assert coordinates == ((138, 8), (569, 599))

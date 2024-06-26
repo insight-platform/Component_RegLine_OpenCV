@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import cv2
 
-from crossing_line.config import DrawingConfig, RelativeDrawingConfig
-from crossing_line.draw import draw_line
+from registration_line.config import DrawingConfig, RelativeDrawingConfig
+from registration_line.draw import draw_line
 
 # Sample code to draw a line with Begin and End labels at the ends of the line and two arrows showing the entry and
 # exit directions if the line is crossed.
@@ -15,7 +15,8 @@ if __name__ == '__main__':
     background_width = 700
     background_height = 600
 
-    baseline_conf = DrawingConfig((128, 0, 128, 255), 2, 'Begin', (0, 40), 'End', (0, -20), cv2.FONT_HERSHEY_SIMPLEX,
+    baseline_conf = DrawingConfig(
+        (128, 0, 128, 255), 2, 'Begin', (0, 40), 'End', (0, -20), cv2.FONT_HERSHEY_SIMPLEX,
         1
     )
     right_line_conf = RelativeDrawingConfig((0, 0, 128, 255), 2, None, None, 'Entry', (10, 0), cv2.FONT_HERSHEY_SIMPLEX,
@@ -30,6 +31,6 @@ if __name__ == '__main__':
     )
 
     cv2.imshow('Image', image)
-    cv2.imwrite("entry_exit_line.png", image)
+    cv2.imwrite("registration_line.png", image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
