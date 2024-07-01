@@ -109,15 +109,13 @@ def draw_arrowed_line(
 
 
 def draw_line(
-    background_width: int,
-    background_height: int,
     start_point: Tuple[int, int],
     end_point: Tuple[int, int],
     config: DrawingConfig,
     right_line_config: RelativeDrawingConfig,
     left_line_config: RelativeDrawingConfig,
 ) -> Tuple[np.ndarray, Tuple[Tuple[int, int], Tuple[int, int]]]:
-    """Draw a line by a given configuration on a background image.
+    """Draw a line by a given configuration on the transparent background.
     There are two rectangles at the ends of the line - one filled and one empty.
     The line also has two arrows coming from it perpendicularly and pointing in opposite directions from each other.
     Each arrow has its own configuration.
@@ -125,8 +123,9 @@ def draw_line(
     Return the image and the bounding box of the non-transparent pixels,
     i.e. the bounding box of the line with labels, arrows, and arrows' labels.
     """
-
-    image = np.zeros((background_height, background_width, 4), dtype=np.uint8)
+    initial_image_size_coefficient = 2
+    size = int(calculate_length(start_point, end_point) * initial_image_size_coefficient)
+    image = np.zeros((size, size, 4), dtype=np.uint8)
 
     rect_width, rect_height = config.width + 10, config.width + 10
 
@@ -160,4 +159,8 @@ def draw_line(
     draw_right_arrowed_line(image, start_point, end_point, angle, right_line_config)
     draw_left_arrowed_line(image, start_point, end_point, angle, left_line_config)
 
-    return image, find_bbox_of_non_transparent_pixels(image)
+    bbox = find_bbox_of_non_transparent_pixels(image)
+
+    cropped_image = image[bbox[0][1]:bbox[1][1], bbox[0][0]:bbox[1][0]]
+
+    return cropped_image, ((0, 0), (cropped_image.shape[1] - 1, cropped_image.shape[0] - 1))
