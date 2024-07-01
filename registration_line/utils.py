@@ -11,7 +11,7 @@ def move_by_offset(point: Tuple[int, int], offset: Tuple[int, int]) -> Tuple:
     return tuple(map(lambda x, y: int(x + y), point, offset))
 
 
-def calculate_length(start_point: Tuple[int, int], end_point: Tuple[int, int]):
+def calculate_length(start_point: Tuple[int, int], end_point: Tuple[int, int]) -> float:
     """Calculate the length of a line by its start and end points."""
 
     length = math.sqrt((end_point[0] - start_point[0]) ** 2 + (end_point[1] - start_point[1]) ** 2)
