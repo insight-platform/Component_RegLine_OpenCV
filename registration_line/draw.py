@@ -120,18 +120,29 @@ def draw_line(
     The line also has two arrows coming from it perpendicularly and pointing in opposite directions from each other.
     Each arrow has its own configuration.
 
-    Return the image and the bounding box of the non-transparent pixels,
-    i.e. the bounding box of the line with labels, arrows, and arrows' labels.
+    Return the image and the bounding box relative to the start point and end point.
+    The bounding box includes the line with labels, arrows, and arrows' labels.
     """
-    initial_image_size_coefficient = 2
-    size = int(calculate_length(start_point, end_point) * initial_image_size_coefficient)
+    background_padding = 300
+    rect_size_adjustment = 10
+
+    size = int(calculate_length(start_point, end_point)) + 2 * background_padding
     image = np.zeros((size, size, 4), dtype=np.uint8)
 
-    rect_width, rect_height = config.width + 10, config.width + 10
+    top_left_x = min(start_point[0], end_point[0]) - background_padding
+    top_left_y = min(start_point[1], end_point[1]) - background_padding
 
-    cv2.line(image, start_point, end_point, config.color, config.width)
+    # Adjust the points relative to the top-left corner
+    adjusted_start_point = (start_point[0] - top_left_x, start_point[1] - top_left_y)
+    adjusted_end_point = (end_point[0] - top_left_x, end_point[1] - top_left_y)
 
-    angle = np.degrees(np.arctan2(end_point[1] - start_point[1], end_point[0] - start_point[0]))
+    rect_width, rect_height = config.width + rect_size_adjustment, config.width + rect_size_adjustment
+
+    cv2.line(image, adjusted_start_point, adjusted_end_point, config.color, config.width)
+
+    angle = np.degrees(
+        np.arctan2(adjusted_end_point[1] - adjusted_start_point[1], adjusted_end_point[0] - adjusted_start_point[0])
+    )
 
     start_rect_points = [
         (0, -rect_height // 2),
@@ -146,21 +157,26 @@ def draw_line(
         (0, rect_height // 2)
     ]
 
-    draw_rotated_rect(image, start_rect_points, start_point, angle, config.color, fill=True)
-    draw_rotated_rect(image, end_rect_points, end_point, angle, config.color, fill=False)
+    draw_rotated_rect(image, start_rect_points, adjusted_start_point, angle, config.color, fill=True)
+    draw_rotated_rect(image, end_rect_points, adjusted_end_point, angle, config.color, fill=False)
 
-    cv2.putText(image, config.start_label, move_by_offset(start_point, config.start_label_offset), config.font, 1,
+    cv2.putText(
+        image, config.start_label, move_by_offset(adjusted_start_point, config.start_label_offset), config.font, 1,
         config.color, config.label_width, cv2.LINE_AA
     )
-    cv2.putText(image, config.end_label, move_by_offset(end_point, config.end_label_offset), config.font, 1,
+    cv2.putText(
+        image, config.end_label, move_by_offset(adjusted_end_point, config.end_label_offset), config.font, 1,
         config.color, config.label_width, cv2.LINE_AA
     )
 
-    draw_right_arrowed_line(image, start_point, end_point, angle, right_line_config)
-    draw_left_arrowed_line(image, start_point, end_point, angle, left_line_config)
+    draw_right_arrowed_line(image, adjusted_start_point, adjusted_end_point, angle, right_line_config)
+    draw_left_arrowed_line(image, adjusted_start_point, adjusted_end_point, angle, left_line_config)
 
     bbox = find_bbox_of_non_transparent_pixels(image)
 
     cropped_image = image[bbox[0][1]:bbox[1][1], bbox[0][0]:bbox[1][0]]
 
-    return cropped_image, ((0, 0), (cropped_image.shape[1] - 1, cropped_image.shape[0] - 1))
+    adjusted_bbox = ((bbox[0][0] + top_left_x, bbox[0][1] + top_left_y),
+                     (bbox[1][0] + top_left_x, bbox[1][1] + top_left_y))
+
+    return cropped_image, adjusted_bbox
