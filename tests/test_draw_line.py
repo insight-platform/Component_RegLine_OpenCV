@@ -15,18 +15,18 @@ if __name__ == '__main__':
     baseline_conf = DrawingConfig((128, 0, 128, 255), 2, 'Begin', (0, 40), 'End', (0, -20), cv2.FONT_HERSHEY_SIMPLEX,
         1
     )
-    right_line_conf = RelativeDrawingConfig((0, 0, 128, 255), 2, None, None, 'Entry', (10, 0), cv2.FONT_HERSHEY_SIMPLEX,
+    right_line_conf = RelativeDrawingConfig(
+        (0, 0, 128, 255), 2, 'Entry', (10, 0), cv2.FONT_HERSHEY_SIMPLEX,
         1, 65, 27
     )
-    left_line_conf = RelativeDrawingConfig((0, 128, 0, 255), 2, None, None, 'Exit', (-60, 0), cv2.FONT_HERSHEY_SIMPLEX,
+    left_line_conf = RelativeDrawingConfig(
+        (0, 128, 0, 255), 2, 'Exit', (-60, 0), cv2.FONT_HERSHEY_SIMPLEX,
         1, 45, 16
     )
 
-    image, coordinates = draw_line(background_width, background_height, start_point, end_point,
-        baseline_conf, right_line_conf, left_line_conf
-    )
+    image, coordinates = draw_line(start_point, end_point, baseline_conf, right_line_conf, left_line_conf)
 
-    expected_image = cv2.imread("registration_line.png", cv2.IMREAD_UNCHANGED)
+    expected_image = cv2.imread("../samples/registration_line/registration_line.png", cv2.IMREAD_UNCHANGED)
 
     assert np.array_equal(image, expected_image)
-    assert coordinates == ((138, 8), (569, 599))
+    assert coordinates == ((0, 0), (430, 590))
