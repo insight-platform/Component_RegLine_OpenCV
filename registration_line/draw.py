@@ -120,8 +120,8 @@ def draw_line(
     The line also has two arrows coming from it perpendicularly and pointing in opposite directions from each other.
     Each arrow has its own configuration.
 
-    Return the image and the bounding box of the non-transparent pixels,
-    i.e. the bounding box of the line with labels, arrows, and arrows' labels.
+    Return the image and the bounding box relative to the background.
+    The bounding box includes the line with labels, arrows, and arrows' labels.
     """
     background_padding = 100
     rect_size_adjustment = 10
@@ -176,4 +176,4 @@ def draw_line(
 
     cropped_image = image[bbox[0][1]:bbox[1][1], bbox[0][0]:bbox[1][0]]
 
-    return cropped_image, ((0, 0), (cropped_image.shape[1] - 1, cropped_image.shape[0] - 1))
+    return cropped_image, bbox
