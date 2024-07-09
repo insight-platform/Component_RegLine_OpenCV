@@ -29,4 +29,4 @@ if __name__ == '__main__':
     expected_image = cv2.imread("../samples/registration_line/registration_line.png", cv2.IMREAD_UNCHANGED)
 
     assert np.array_equal(image, expected_image)
-    assert coordinates == ((88, 58), (519, 649))
+    assert coordinates == ((138, 8), (569, 599))

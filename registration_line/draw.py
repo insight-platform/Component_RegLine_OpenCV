@@ -120,10 +120,10 @@ def draw_line(
     The line also has two arrows coming from it perpendicularly and pointing in opposite directions from each other.
     Each arrow has its own configuration.
 
-    Return the image and the bounding box relative to the background.
+    Return the image and the bounding box relative to the start point and end point.
     The bounding box includes the line with labels, arrows, and arrows' labels.
     """
-    background_padding = 100
+    background_padding = 300
     rect_size_adjustment = 10
 
     size = int(calculate_length(start_point, end_point)) + 2 * background_padding
@@ -176,4 +176,7 @@ def draw_line(
 
     cropped_image = image[bbox[0][1]:bbox[1][1], bbox[0][0]:bbox[1][0]]
 
-    return cropped_image, bbox
+    adjusted_bbox = ((bbox[0][0] + top_left_x, bbox[0][1] + top_left_y),
+                     (bbox[1][0] + top_left_x, bbox[1][1] + top_left_y))
+
+    return cropped_image, adjusted_bbox
