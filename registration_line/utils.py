@@ -49,3 +49,18 @@ def find_bbox_of_non_transparent_pixels(image: np.ndarray) -> Tuple[Tuple[int, i
     x, y, w, h = cv2.boundingRect(coords)
 
     return (x, y), (x + w, y + h)
+
+
+def adjust_coordinates(
+    coordinates: Tuple[Tuple[int, int], Tuple[int, int]],
+    top_left: Tuple[int, int]
+) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+    """Adjust coordinates by moving them to a new top-left point."""
+
+    (x, y), (x2, y2) = coordinates
+    x += top_left[0]
+    y += top_left[1]
+    x2 += top_left[0]
+    y2 += top_left[1]
+
+    return (x, y), (x2, y2)

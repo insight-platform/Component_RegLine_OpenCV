@@ -5,7 +5,7 @@ import numpy as np
 
 from registration_line.config import DrawingConfig, RelativeDrawingConfig
 from registration_line.utils import rotate_point, move_by_offset, find_bbox_of_non_transparent_pixels, \
-    calculate_length
+    calculate_length, adjust_coordinates
 
 
 def draw_rotated_rect(
@@ -34,10 +34,10 @@ def draw_right_arrowed_line(
     end_point: Tuple[int, int],
     angle: float,
     config: RelativeDrawingConfig
-):
+) -> Tuple[Tuple[int, int], Tuple[int, int]]:
     """Draw a line with an arrow pointing to the right from the baseline perpendicular to it."""
 
-    draw_arrowed_line(
+    return draw_arrowed_line(
         image, start_point, end_point, angle + 90, config.color, config.width,
         config.start_point_percentage, config.length_percentage, config.font, config.end_label, config.end_label_offset,
         config.label_width
@@ -50,10 +50,10 @@ def draw_left_arrowed_line(
     end_point: Tuple[int, int],
     angle: float,
     config: RelativeDrawingConfig
-):
+) -> Tuple[Tuple[int, int], Tuple[int, int]]:
     """Draw a line with an arrow pointing to the left from the baseline perpendicular to it."""
 
-    draw_arrowed_line(
+    return draw_arrowed_line(
         image, start_point, end_point, angle - 90, config.color, config.width,
         config.start_point_percentage, config.length_percentage, config.font, config.end_label, config.end_label_offset,
         config.label_width
@@ -73,7 +73,7 @@ def draw_arrowed_line(
     label: str,
     label_offset: Tuple[int, int],
     label_width: int
-):
+) -> Tuple[Tuple[int, int], Tuple[int, int]]:
     """Draw a line with an arrow at the end of the line extending from the baseline at the specified angle.
     Start point of the line is calculated by the percentage of the baseline from the start point.
     Length of the line is calculated by the percentage of the baseline length.
@@ -107,6 +107,8 @@ def draw_arrowed_line(
 
     cv2.putText(image, label, move_by_offset(end_point, label_offset), font, 1, color, label_width, cv2.LINE_AA)
 
+    return start_point, end_point
+
 
 def draw_line(
     start_point: Tuple[int, int],
@@ -114,7 +116,12 @@ def draw_line(
     config: DrawingConfig,
     right_line_config: RelativeDrawingConfig,
     left_line_config: RelativeDrawingConfig,
-) -> Tuple[np.ndarray, Tuple[Tuple[int, int], Tuple[int, int]]]:
+) -> Tuple[
+    np.ndarray,
+    Tuple[Tuple[int, int], Tuple[int, int]],
+    Tuple[Tuple[int, int], Tuple[int, int]],
+    Tuple[Tuple[int, int], Tuple[int, int]]
+]:
     """Draw a line by a given configuration on the transparent background.
     There are two rectangles at the ends of the line - one filled and one empty.
     The line also has two arrows coming from it perpendicularly and pointing in opposite directions from each other.
@@ -122,6 +129,7 @@ def draw_line(
 
     Return the image and the bounding box relative to the start point and end point.
     The bounding box includes the line with labels, arrows, and arrows' labels.
+    Also return the coordinates of the right and left arrows as two points: start and end.
     """
     background_padding = 300
     rect_size_adjustment = 10
@@ -169,14 +177,20 @@ def draw_line(
         config.color, config.label_width, cv2.LINE_AA
     )
 
-    draw_right_arrowed_line(image, adjusted_start_point, adjusted_end_point, angle, right_line_config)
-    draw_left_arrowed_line(image, adjusted_start_point, adjusted_end_point, angle, left_line_config)
+    right_arrowed_line_coords = draw_right_arrowed_line(
+        image, adjusted_start_point, adjusted_end_point, angle, right_line_config
+    )
+    left_arrowed_line_coords = draw_left_arrowed_line(
+        image, adjusted_start_point, adjusted_end_point, angle, left_line_config
+    )
 
     bbox = find_bbox_of_non_transparent_pixels(image)
 
     cropped_image = image[bbox[0][1]:bbox[1][1], bbox[0][0]:bbox[1][0]]
 
-    adjusted_bbox = ((bbox[0][0] + top_left_x, bbox[0][1] + top_left_y),
-                     (bbox[1][0] + top_left_x, bbox[1][1] + top_left_y))
+    top_left = (top_left_x, top_left_y)
+    adjusted_bbox = adjust_coordinates(bbox, top_left)
+    adjusted_right_arrowed_line_coords = adjust_coordinates(right_arrowed_line_coords, top_left)
+    adjusted_left_arrowed_line_coords = adjust_coordinates(left_arrowed_line_coords, top_left)
 
-    return cropped_image, adjusted_bbox
+    return cropped_image, adjusted_bbox, adjusted_right_arrowed_line_coords, adjusted_left_arrowed_line_coords

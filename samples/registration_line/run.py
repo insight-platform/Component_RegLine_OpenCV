@@ -44,7 +44,9 @@ if __name__ == '__main__':
         length_percentage=16
     )
 
-    image, coordinates = draw_line(start_point, end_point, baseline_conf, right_line_conf, left_line_conf)
+    image, coordinates, right_line_coords, left_line_coords = draw_line(
+        start_point, end_point, baseline_conf, right_line_conf, left_line_conf
+    )
 
     cv2.imshow('Image', image)
     cv2.imwrite("registration_line.png", image)
